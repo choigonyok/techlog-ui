@@ -1,0 +1,60 @@
+.post-header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.post-header__title {
+  font-size: clamp(1.625rem, 1.25rem + 1.4vw, 2.125rem);
+  line-height: 1.35;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+.post-header__subtitle {
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.post-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  font-size: 0.9375rem;
+  color: var(--ink-faint);
+}
+
+.post-header__topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+}
+
+/* 짧은 낱말(ops)도 누르는 폭은 44px 이상, 글자는 왼쪽에 붙여 보이는 간격을 고르게 둔다. */
+.post-header__topics a,
+.post-header__topics span {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  min-width: var(--target);
+  color: var(--ink-soft);
+}
+
+.post-header__topics a:hover {
+  color: var(--ink);
+}
+
+.post-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-top: 12px;
+  border-radius: 12px;
+  background: var(--tint);
+}

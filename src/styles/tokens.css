@@ -1,0 +1,101 @@
+/*
+  색은 세 무리다.
+  - 종이(paper): 사람이 쓴 글이 놓이는 서늘한 회백 바탕과 남색 글자
+  - 패널(panel): 메시·코드처럼 기계가 낸 것을 담는 남색 판
+  - 신호(signal): 지금 선택된 것에만 쓰는 주황. 옛 프로필 사진 테두리(#FF2A00)에서 왔고,
+    흰 글자를 얹어 4.5:1 을 넘기도록 명도만 낮췄다(4.68:1).
+*/
+:root {
+  color-scheme: light;
+
+  --paper: #eef1f5;
+  --raised: #f8f9fb;
+  --tint: #e1e6ee;
+  --ink: #16233f;
+  --ink-soft: #44526c;
+  --ink-faint: #56637a;
+  --rule: #c9d1dc;
+  --line-strong: #7b889e;
+
+  --panel: #15223c;
+  --panel-raised: #1d2c4a;
+  --panel-border: #15223c;
+  --panel-ink: #e4eaf3;
+  --panel-soft: #b7c2d4;
+  --panel-dim: #8f9cb4;
+  --panel-edge: #3b4c6c;
+
+  --signal: #e22402;
+  --on-signal: #ffffff;
+  --signal-panel: #ff7a50;
+
+  --danger: #b42318;
+  --on-danger: #ffffff;
+  --focus: #16233f;
+  --shadow-pop: 0 18px 48px rgba(12, 21, 40, 0.24);
+
+  --syn-keyword: #8cc3ff;
+  --syn-string: #a5dbb2;
+  --syn-number: #cdb6ff;
+  --syn-title: #e9d58e;
+  --syn-attr: #97d3e2;
+  --syn-comment: #8f9cb4;
+  --syn-meta: #b7c2d4;
+  --syn-deletion: #ffb4b4;
+
+  --font-sans: "IBM Plex Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
+    "Noto Sans KR", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "IBM Plex Sans KR", monospace;
+
+  /* 본문 한 줄이 공백 포함 약 38자가 되는 폭(넓은 화면의 본문 18px 기준) */
+  --measure: 34rem;
+  --page: 1200px;
+  --gutter: 16px;
+  --radius-panel: 14px;
+  --radius-code: 10px;
+  --radius-control: 8px;
+
+  /* 손가락으로 누르는 요소의 최소 크기. 마우스가 주 입력이면 조금 줄인다. */
+  --target: 44px;
+}
+
+@media (pointer: fine) {
+  :root {
+    --target: 36px;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+/* 원본 화면이 어두운 바탕이었다. 시스템 설정이 다크면 깊은 남색 바탕으로 잇는다. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --paper: #0c1322;
+    --raised: #131c2f;
+    --tint: #1a2439;
+    --ink: #dce3ed;
+    --ink-soft: #a7b3c6;
+    --ink-faint: #8c99af;
+    --rule: #26324a;
+    --line-strong: #66758f;
+
+    --panel: #111c32;
+    --panel-raised: #1a2742;
+    --panel-border: #26344f;
+    --panel-edge: #34445f;
+
+    --signal: #ff6e40;
+    --on-signal: #0c1322;
+
+    --danger: #ff8a80;
+    --on-danger: #0c1322;
+    --focus: #dce3ed;
+    --shadow-pop: 0 18px 48px rgba(0, 0, 0, 0.5);
+  }
+}
