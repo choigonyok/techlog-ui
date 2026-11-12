@@ -4,7 +4,7 @@ import { deletePost } from "../../adminApi";
 import { getPosts } from "../../api";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { formatClock } from "../../lib/clock";
-import { compareByDateDesc } from "../../lib/dates";
+import { compareByDateDesc, formatDots } from "../../lib/dates";
 import { isEmptyDraft, loadDraft } from "../../lib/draft";
 import { useDocumentTitle } from "../../lib/hooks";
 
@@ -52,61 +52,67 @@ export function Component() {
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-head">
-        <h1 className="admin-head__title">글 관리</h1>
-        <Link className="button button--primary" to="/admin/write">
-          새 글 쓰기
-        </Link>
+    <>
+      <div className="page-head on-field">
+        <div className="wrap page-head__inner page-head__row">
+          <h1 className="page-head__title">글 관리</h1>
+          <Link className="button button--light" to="/admin/write">
+            새 글 쓰기
+          </Link>
+        </div>
       </div>
 
-      {draft && (
-        <p className="notice">
-          <span>{formatClock(draft.savedAt)}에 임시 저장한 새 글이 있습니다.</span>
-          <Link to="/admin/write">이어 쓰기</Link>
+      <div className="wrap admin">
+        {draft && (
+          <p className="notice">
+            <span>{formatClock(draft.savedAt)}에 임시 저장한 새 글이 있습니다.</span>
+            <Link to="/admin/write">이어 쓰기</Link>
+          </p>
+        )}
+        <p className="admin-status" role="status">
+          {message}
         </p>
-      )}
-      <p className="admin-status" role="status">
-        {message}
-      </p>
-      {error && (
-        <p className="notice" data-tone="danger" role="alert">
-          {error}
-        </p>
-      )}
+        {error && (
+          <p className="notice" data-tone="danger" role="alert">
+            {error}
+          </p>
+        )}
 
-      <p className="admin-count tnum">글 {sorted.length}편</p>
-      <ul className="admin-list">
-        {sorted.map((post) => (
-          <li key={post.id} className="admin-row">
-            <div className="admin-row__main">
+        <p className="admin-count tnum">글 {sorted.length}편</p>
+        <ul className="admin-list">
+          {sorted.map((post) => (
+            <li key={post.id} className="admin-row">
               <time className="admin-row__date tnum" dateTime={post.date || undefined}>
-                {post.date || "날짜 없음"}
+                {formatDots(post.date) || "날짜 없음"}
               </time>
-              <p className="admin-row__title">{post.title || "제목 없음"}</p>
-              {post.subtitle && <p className="admin-row__subtitle">{post.subtitle}</p>}
-              {post.topics.length > 0 && <p className="admin-row__topics">{post.topics.join(", ")}</p>}
-            </div>
-            <div className="admin-row__actions">
-              <Link
-                className="button"
-                to={`/admin/posts/${encodeURIComponent(post.id)}`}
-                aria-label={`‘${post.title}’ 수정`}
-              >
-                수정
-              </Link>
-              <button
-                type="button"
-                className="button button--quiet"
-                onClick={() => setTarget(post)}
-                aria-label={`‘${post.title}’ 삭제`}
-              >
-                삭제
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className="admin-row__main">
+                <p className="admin-row__title">
+                  <Link to={`/posts/${encodeURIComponent(post.id)}`}>{post.title || "제목 없음"}</Link>
+                </p>
+                {post.subtitle && <p className="admin-row__subtitle">{post.subtitle}</p>}
+                {post.topics.length > 0 && <p className="admin-row__topics">{post.topics.join(", ")}</p>}
+              </div>
+              <div className="admin-row__actions">
+                <Link
+                  className="button"
+                  to={`/admin/posts/${encodeURIComponent(post.id)}`}
+                  aria-label={`‘${post.title}’ 수정`}
+                >
+                  수정
+                </Link>
+                <button
+                  type="button"
+                  className="button button--quiet admin-row__delete"
+                  onClick={() => setTarget(post)}
+                  aria-label={`‘${post.title}’ 삭제`}
+                >
+                  삭제
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <ConfirmDialog
         open={Boolean(target)}
@@ -119,6 +125,6 @@ export function Component() {
       >
         <p>‘{target ? target.title : ""}’ 글과 그 이미지를 지웁니다. 삭제한 글은 되살릴 수 없습니다.</p>
       </ConfirmDialog>
-    </div>
+    </>
   );
 }

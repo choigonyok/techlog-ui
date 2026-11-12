@@ -1,23 +1,8 @@
-.admin-page {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: 8px var(--gutter) 0;
+/* 글 관리 */
+.admin {
   display: grid;
-  gap: 16px;
-}
-
-.admin-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 16px;
-}
-
-.admin-head__title {
-  font-size: 1.5rem;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
 }
 
 .admin-status:empty {
@@ -25,28 +10,34 @@
 }
 
 .admin-status {
-  color: var(--ink);
-  font-size: 0.9375rem;
+  color: var(--accent-ink);
+  font-size: var(--text-base);
+  font-weight: var(--w-title);
 }
 
 .admin-count {
   color: var(--ink-faint);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
 }
 
 .admin-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--ink);
 }
 
 .admin-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 8px 16px;
-  padding: 16px 0;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-4) 0;
   border-bottom: 1px solid var(--rule);
+}
+
+.admin-row__date {
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
 }
 
 .admin-row__main {
@@ -55,46 +46,83 @@
   min-width: 0;
 }
 
-.admin-row__date {
-  font-size: 0.875rem;
-  color: var(--ink-faint);
+.admin-row__title {
+  font-size: var(--text-lg);
+  font-weight: var(--w-title);
+  line-height: 1.42;
+  letter-spacing: -0.018em;
 }
 
-.admin-row__title {
-  font-weight: 600;
-  line-height: 1.45;
+/* 글줄 높이는 그대로 두고 누르는 영역만 위아래로 넓힌다. */
+.admin-row__title a {
+  display: inline-block;
+  margin-block: -11px;
+  padding-block: 11px;
+  text-decoration: none;
+}
+
+.admin-row__title a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
 }
 
 .admin-row__subtitle {
-  font-size: 0.9375rem;
   color: var(--ink-soft);
+  font-size: var(--text-base);
 }
 
 .admin-row__topics {
-  font-size: 0.8125rem;
   color: var(--ink-faint);
+  font-size: var(--text-xs);
 }
 
 .admin-row__actions {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
-@media (min-width: 640px) {
+.admin-row__delete:hover {
+  color: var(--danger);
+}
+
+@media (min-width: 768px) {
+  .admin {
+    padding-top: var(--space-6);
+  }
+
   .admin-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: 6rem minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .admin-row__date {
+    padding-top: 0.3em;
+  }
+
+  .admin-row__actions {
+    margin-top: 0;
   }
 }
 
 /* 쓰기 화면 */
+.editor__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+}
+
+/* 쪽 머리(판) 위의 쓰기·미리보기 전환 */
 .segmented {
   display: inline-flex;
-  gap: 8px;
+  gap: 4px;
   padding: 3px;
   border-radius: 10px;
-  background: var(--tint);
+  background: var(--field-raised);
 }
 
 .segmented button {
@@ -102,17 +130,16 @@
   min-width: 5.5rem;
   padding: 0 14px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 7px;
   background: transparent;
-  color: var(--ink-soft);
-  font-size: 0.9375rem;
+  color: var(--field-soft);
+  font-size: var(--text-base);
 }
 
 .segmented button[aria-pressed="true"] {
-  background: var(--raised);
-  color: var(--ink);
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(12, 21, 40, 0.12);
+  background: var(--field-ink);
+  color: var(--field);
+  font-weight: var(--w-title);
 }
 
 @media (pointer: coarse) {
@@ -124,7 +151,7 @@
 .editor__panes {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 32px;
+  gap: var(--space-6);
 }
 
 .editor__panes[data-mode="write"] .editor__preview,
@@ -134,7 +161,7 @@
 
 .editor__write {
   display: grid;
-  gap: 24px;
+  gap: var(--space-5);
   align-content: start;
   min-width: 0;
 }
@@ -143,29 +170,56 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .editor__text {
   min-height: 60vh;
   font-family: var(--font-mono);
   font-size: 0.875rem;
+  font-variant-ligatures: none;
   line-height: 1.75;
   word-break: normal;
+}
+
+/* 본문 칸은 글자가 작아도 iOS 가 확대하지 않도록 손가락으로 쓰는 화면에서는 16px 로 둔다. */
+@media (pointer: coarse) {
+  .editor__text {
+    font-size: 1rem;
+  }
 }
 
 .editor__preview {
   min-width: 0;
 }
 
-.editor__preview .article {
-  max-width: var(--measure);
+.editor__pane-label {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
 }
 
-.editor__pane-label {
-  margin-bottom: 16px;
-  font-size: 0.875rem;
-  color: var(--ink-faint);
+/* 미리보기는 글 화면을 줄여 놓은 모양이다: 판 위의 머리와 종이 위의 본문 */
+/* 안쪽 여백과 테두리를 뺀 본문 폭이 글 화면의 본문 폭(--measure)과 같다. */
+.preview {
+  max-width: calc(var(--measure) + 2 * var(--space-5) + 2px);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-pop);
+  overflow: hidden;
+}
+
+.preview__head {
+  padding: var(--space-5);
+  background: var(--field);
+  color: var(--field-ink);
+}
+
+.preview__head .post-header__title {
+  font-size: var(--text-2xl);
+}
+
+.preview__body {
+  padding: var(--space-5);
 }
 
 .editor__empty {
@@ -179,11 +233,10 @@
 
   /* 미리보기 칸은 스크롤 막대 자리(12px)만큼 넓혀, 안의 글 폭이 글 화면과 똑같게 한다. */
   .editor__panes {
-    grid-template-columns: minmax(0, 1fr) minmax(0, calc(var(--measure) + 12px));
-    column-gap: 40px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, calc(var(--measure) + 2 * var(--space-5) + 2px + 12px));
+    column-gap: var(--space-7);
   }
 
-  .editor__panes[data-mode] .editor__write,
   .editor__panes[data-mode] .editor__preview {
     display: block;
   }
@@ -194,9 +247,10 @@
 
   .editor__preview {
     position: sticky;
-    top: 16px;
+    top: var(--space-4);
     align-self: start;
     max-height: calc(100vh - 120px);
+    max-height: calc(100dvh - 120px);
     overflow-y: auto;
     padding-right: 12px;
   }
@@ -205,21 +259,21 @@
 .editor__actions {
   position: sticky;
   bottom: 0;
-  z-index: 10;
+  z-index: var(--z-sticky);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
-  margin-top: 8px;
-  padding: 12px var(--gutter);
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-2);
   margin-inline: calc(-1 * var(--gutter));
+  padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--rule);
   background: var(--paper);
 }
 
 .editor__saved {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--ink-faint);
 }
 
@@ -230,7 +284,7 @@
 
 .editor__buttons {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
@@ -241,7 +295,7 @@
   border: 0;
   min-width: 0;
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .thumbs legend {
@@ -250,16 +304,16 @@
 }
 
 .thumbs[data-dragging="true"] .thumbs__grid {
-  outline: 2px dashed var(--line-strong);
+  outline: 2px dashed var(--mark);
   outline-offset: 4px;
-  border-radius: 10px;
+  border-radius: var(--radius-panel);
 }
 
 .thumbs__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
   align-items: start;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .thumb-wrap {
@@ -275,10 +329,10 @@
   gap: 6px;
   padding: 6px;
   border: 1px solid var(--rule);
-  border-radius: 10px;
-  background: var(--raised);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
   color: var(--ink);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   text-align: left;
   cursor: pointer;
 }
@@ -292,10 +346,10 @@
   outline-offset: 2px;
 }
 
-/* 고른 썸네일만 신호색 테두리 */
+/* 고른 썸네일: 표시색 테두리와 굵은 이름 */
 .thumb.is-selected {
-  border-color: var(--signal);
-  box-shadow: 0 0 0 2px var(--signal);
+  border-color: var(--mark);
+  box-shadow: 0 0 0 2px var(--mark);
 }
 
 .thumb__radio {
@@ -329,17 +383,17 @@
 
 .thumb.is-selected .thumb__name {
   color: var(--ink);
-  font-weight: 600;
+  font-weight: var(--w-title);
 }
 
 .thumb__remove {
   justify-self: end;
   min-height: var(--target);
-  padding: 0 8px;
+  padding: 0 var(--space-2);
   border: 0;
   background: transparent;
   color: var(--ink-soft);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   text-decoration: underline;
 }
 
@@ -353,6 +407,6 @@
   border-style: dashed;
   border-color: var(--line-strong);
   color: var(--ink-soft);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   text-align: center;
 }

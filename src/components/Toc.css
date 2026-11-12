@@ -1,52 +1,50 @@
 .toc {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.45;
-}
-
-.toc__title {
-  font-size: 0.875rem;
-  margin-bottom: 8px;
 }
 
 .toc__list {
   list-style: none;
   margin: 0;
-  padding: 0;
-  border-left: 1px solid var(--rule);
+  padding: var(--space-1) 0 0;
 }
 
 .toc__item a {
   display: flex;
   align-items: center;
   min-height: var(--target);
-  padding: 4px 0 4px 14px;
-  margin-left: -1px;
-  border-left: 2px solid transparent;
+  padding: 4px var(--space-2) 4px var(--space-3);
+  border-left: 3px solid transparent;
   color: var(--ink-soft);
   text-decoration: none;
 }
 
 .toc__item--3 a {
-  padding-left: 28px;
+  padding-left: 26px;
 }
 
 .toc__item a:hover {
+  background: var(--tint);
   color: var(--ink);
-  text-decoration: underline;
 }
 
-/* 지금 읽는 절: 신호색 막대 */
+.toc__item a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* 지금 읽는 절: 왼쪽 막대와 굵은 글자(주제 목록의 '지금 고른 주제'와 같은 표시) */
 .toc__item a[aria-current="location"] {
-  border-left-color: var(--signal);
+  border-left-color: var(--mark);
   color: var(--ink);
-  font-weight: 600;
+  font-weight: var(--w-strong);
 }
 
+/* 좁은 화면: 위에 붙는 막대 */
 .toc-bar {
   position: sticky;
   top: 0;
-  z-index: 20;
-  margin: 0 calc(-1 * var(--gutter)) 24px;
+  z-index: var(--z-sticky);
+  margin: 0 calc(-1 * var(--gutter)) var(--space-5);
   padding: 0 var(--gutter);
   background: var(--paper);
   border-bottom: 1px solid var(--rule);
@@ -55,19 +53,23 @@
 .toc-bar__toggle {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
-  min-height: 48px;
+  min-height: var(--bar);
   padding: 0;
   border: 0;
   background: transparent;
   text-align: left;
 }
 
+.toc-bar__toggle:focus-visible {
+  outline-offset: -2px;
+}
+
 .toc-bar__label {
   flex: none;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--w-strong);
 }
 
 .toc-bar__current {
@@ -76,39 +78,57 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--ink-soft);
 }
 
 .toc-bar__chevron {
-  flex: none;
   color: var(--ink-soft);
-  transition: transform 160ms ease;
+  transition: transform var(--fast) ease;
 }
 
 .toc-bar__toggle[aria-expanded="true"] .toc-bar__chevron {
   transform: rotate(180deg);
 }
 
+/* 읽은 만큼 차는 선. 막대의 아래 테두리 위에 겹친다. */
+.toc-bar__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--mark);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
 .toc-bar__sheet {
   position: absolute;
   left: 0;
   right: 0;
-  top: 100%;
+  top: calc(100% + 1px);
+  z-index: var(--z-sheet);
   max-height: min(60vh, 480px);
   overflow-y: auto;
-  padding: 8px var(--gutter) 16px;
-  background: var(--raised);
+  overscroll-behavior: contain;
+  padding: var(--space-2) var(--gutter) var(--space-4);
+  background: var(--surface);
   border-bottom: 1px solid var(--rule);
   box-shadow: var(--shadow-pop);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
 }
 
 .toc-bar__sheet[hidden] {
   display: none;
 }
 
-@media (min-width: 1100px) {
+.toc-bar__sheet .toc__item a {
+  min-height: 44px;
+}
+
+@media (min-width: 1024px) {
   .toc-bar {
     display: none;
   }

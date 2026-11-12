@@ -15,3 +15,35 @@ export function compareByDateDesc(a, b) {
   }
   return a.title.localeCompare(b.title, "ko");
 }
+
+// 정렬된 글을 달마다 묶는다. 차례는 그대로 두고, 날짜가 없는 글은 key 가 빈 묶음에 모인다.
+export function groupByMonth(posts) {
+  const groups = [];
+  for (const post of posts) {
+    const key = post.date ? post.date.slice(0, 7) : "";
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) last.posts.push(post);
+    else groups.push({ key, posts: [post] });
+  }
+  return groups;
+}
+
+// "2024-01" → "2024년 1월"
+export function formatMonth(key) {
+  return key ? `${key.slice(0, 4)}년 ${Number(key.slice(5, 7))}월` : "날짜 없음";
+}
+
+// "2024-01-28" → "28일"
+export function formatDay(iso) {
+  return iso ? `${Number(iso.slice(8, 10))}일` : "";
+}
+
+// "2024-01-28" → "2024년 1월 28일"
+export function formatLong(iso) {
+  return iso ? `${iso.slice(0, 4)}년 ${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일` : "";
+}
+
+// "2024-01-28" → "2024.01.28"
+export function formatDots(iso) {
+  return iso ? iso.replace(/-/g, ".") : "";
+}

@@ -1,8 +1,8 @@
-// 글꼴은 두 굵기(400 본문, 600 제목)만 싣는다. 굵기마다 한글 유니코드 구간 정의가 붙어
-// CSS 가 커지기 때문이다. Plex Mono 는 코드에만 쓰므로 라틴 글자만 싣는다.
-import "@fontsource/ibm-plex-sans-kr/400.css";
-import "@fontsource/ibm-plex-sans-kr/600.css";
-import "@fontsource/ibm-plex-mono/latin-400.css";
+// 글꼴은 가변 글꼴 두 벌이다. Wanted Sans 는 한 벌로 본문(400)부터 큰 제목(800)까지 쓰고,
+// 한글은 유니코드 구간별 조각으로 나뉘어 있어 화면에 나온 글자의 조각만 받는다.
+// JetBrains Mono 는 코드에만 쓴다.
+import "wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
 import "./styles/tokens.css";
 import "./styles/base.css";
 

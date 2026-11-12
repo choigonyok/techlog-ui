@@ -1,49 +1,46 @@
-.site-header__inner,
-.site-footer__inner {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding-inline: var(--gutter);
+/* 머리 막대와 바닥글은 같은 판이다. 쪽 머리가 있으면 머리 막대에서 그대로 이어진다. */
+.site-header {
+  background: var(--field);
+  color: var(--field-ink);
 }
 
 .site-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 64px;
+  gap: var(--space-4);
+  min-height: 60px;
 }
 
 .wordmark {
   display: inline-flex;
   align-items: center;
+  gap: 7px;
   min-height: var(--target);
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.1875rem;
+  font-weight: var(--w-display);
+  letter-spacing: -0.035em;
   text-decoration: none;
 }
 
-.site-header__link {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--target);
-  min-width: var(--target);
-  justify-content: center;
-  padding: 0 8px;
-  margin-right: -8px;
-  color: var(--ink-soft);
-  font-size: 0.9375rem;
-  text-decoration: none;
-  border-radius: var(--radius-control);
+.wordmark__mark {
+  flex: none;
+  color: var(--signal);
 }
 
-.site-header__link:hover {
-  color: var(--ink);
-  text-decoration: underline;
+.site-header__tool {
+  margin-right: -10px;
+  color: var(--field-soft);
+}
+
+.site-header__tool:hover {
+  background: var(--field-raised);
+  color: var(--field-ink);
 }
 
 .site-main {
   flex: 1;
+  padding-bottom: var(--space-9);
 }
 
 .site-main:focus {
@@ -51,35 +48,50 @@
 }
 
 .site-footer {
-  margin-top: 96px;
-  border-top: 1px solid var(--rule);
+  background: var(--field);
+  color: var(--field-soft);
+  font-size: var(--text-sm);
 }
 
 .site-footer__inner {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 24px;
-  padding-top: 24px;
-  padding-bottom: 40px;
-  color: var(--ink-faint);
-  font-size: 0.875rem;
+  align-items: center;
+  gap: 0 var(--space-5);
+  padding-top: var(--space-4);
+  padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+}
+
+.site-footer__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: var(--target);
+  min-width: var(--target);
+  margin-left: auto;
+  color: var(--field-soft);
+  text-decoration-color: var(--field-dim);
+}
+
+.site-footer__link:hover {
+  color: var(--field-ink);
 }
 
 .skip-link {
   position: absolute;
-  left: 8px;
+  left: var(--space-2);
   top: -200px;
-  z-index: 100;
+  z-index: var(--z-skip);
   padding: 10px 14px;
   border-radius: var(--radius-control);
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 600;
+  background: var(--field-ink);
+  color: var(--field);
+  font-weight: var(--w-title);
   text-decoration: none;
 }
 
 .skip-link:focus {
-  top: 8px;
+  top: var(--space-2);
 }
 
 /* 다음 화면을 불러오는 동안 위쪽에 얇게 차오르는 막대 */
@@ -87,24 +99,26 @@
   position: fixed;
   inset: 0 0 auto 0;
   height: 3px;
-  z-index: 90;
+  z-index: var(--z-progress);
   pointer-events: none;
-  background: var(--ink);
+  background: var(--signal);
   transform-origin: left center;
   transform: scaleX(0);
   opacity: 0;
 }
 
+/* 금방 끝나는 이동에서는 깜빡이지 않도록 조금 기다렸다가 나타난다. */
 .nav-progress[data-busy="true"] {
-  opacity: 1;
-  animation: nav-progress 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) 120ms both;
+  animation: nav-progress 1.6s var(--ease-out) 120ms forwards;
 }
 
 @keyframes nav-progress {
   from {
+    opacity: 1;
     transform: scaleX(0.04);
   }
   to {
+    opacity: 1;
     transform: scaleX(0.86);
   }
 }

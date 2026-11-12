@@ -1,93 +1,183 @@
-.post-list {
+.entries {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 4px;
-}
-
-.post-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  row-gap: 2px;
-  padding: 14px 12px;
-  margin-inline: -12px;
-  border-radius: 10px;
-}
-
-.post-row:hover {
-  background: var(--raised);
-}
-
-.post-row:focus-within {
-  outline: 2px solid var(--focus);
-  outline-offset: -2px;
-}
-
-.post-row__date {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--ink-faint);
-}
-
-.post-row__body {
-  display: grid;
-  gap: 2px;
   min-width: 0;
 }
 
-.post-row__title {
-  font-size: 1.125rem;
-  line-height: 1.45;
-  letter-spacing: -0.005em;
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  column-gap: var(--space-2);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
 }
 
-.post-row__title a {
+.entry:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.entry__date {
+  padding-top: 0.22em;
+  color: var(--ink-faint);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+.entry__body {
+  min-width: 0;
+}
+
+.entry__title {
+  font-size: var(--text-lg);
+  font-weight: var(--w-title);
+  line-height: 1.42;
+  letter-spacing: -0.018em;
+}
+
+.entry__title a {
   text-decoration: none;
 }
 
 /* 줄 전체를 누를 수 있게 링크 영역을 넓힌다. 포커스 표시는 줄이 맡는다. */
-.post-row__title a::after {
+.entry__title a::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
 }
 
-.post-row__title a:focus-visible {
+.entry__title a:focus-visible {
   outline: none;
 }
 
-.post-row:hover .post-row__title a {
+.entry:hover .entry__title a {
   text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
 }
 
-.post-row__subtitle {
+.entry__subtitle {
+  margin-top: 2px;
   color: var(--ink-soft);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   line-height: 1.55;
 }
 
-.post-row__topics {
-  margin-top: 2px;
-  font-size: 0.8125rem;
-  line-height: 1.6;
+.entry__topics {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  margin-top: 6px;
   color: var(--ink-faint);
+  font-size: var(--text-xs);
+  line-height: 1.6;
 }
 
-.post-row__topics .is-selected {
-  color: var(--ink);
-  font-weight: 600;
+.entry__topics .is-selected {
+  color: var(--accent-ink);
+  font-weight: var(--w-title);
+}
+
+/* 날짜를 다 적는 목록은 날짜 칸이 넓다. */
+.entries--flat .entry {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.entries--flat .entry__date {
+  padding-top: 0;
+  font-size: var(--text-sm);
+}
+
+.entries--flat .entry__topics {
+  grid-column: 1;
+}
+
+/* 달 묶음 */
+.month {
+  padding-top: var(--space-5);
+}
+
+.month__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.month__name {
+  font-size: var(--text-base);
+  font-weight: var(--w-strong);
+  letter-spacing: -0.01em;
+}
+
+.month__count {
+  color: var(--ink-faint);
+  font-size: var(--text-xs);
 }
 
 @media (min-width: 640px) {
-  .post-row {
-    grid-template-columns: 6.5rem minmax(0, 1fr);
-    column-gap: 16px;
+  .entries--flat .entry {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    column-gap: var(--space-4);
   }
 
-  .post-row__date {
-    padding-top: 0.15em;
+  .entries--flat .entry__date {
+    padding-top: 0.28em;
+  }
+
+  .entries--flat .entry__topics {
+    grid-column: 2;
+  }
+}
+
+/* 넓은 화면: 달 이름이 왼쪽에 서서 그 달의 글을 따라 내려오고, 주제는 오른쪽 칸으로 간다. */
+@media (min-width: 1024px) {
+  .month {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    column-gap: var(--space-5);
+    padding-top: 0;
+    border-top: 1px solid var(--ink);
+  }
+
+  .month + .month {
+    margin-top: -1px;
+  }
+
+  .month__head {
+    display: block;
+    position: sticky;
+    top: var(--space-5);
+    align-self: start;
+    padding: 15px 0;
+    border-bottom: 0;
+  }
+
+  .month__count {
+    margin-top: 2px;
+  }
+
+  .month .entry {
+    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 11rem);
+    column-gap: var(--space-3);
+  }
+
+  .month .entry:last-child {
+    border-bottom-color: transparent;
+  }
+
+  .month .entry__topics {
+    grid-column: 3;
+    grid-row: 1;
+    align-content: start;
+    justify-content: flex-end;
+    margin-top: 0;
+    padding-top: 0.42em;
+    text-align: right;
   }
 }

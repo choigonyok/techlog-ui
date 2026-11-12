@@ -1,5 +1,5 @@
-import { relatedPosts } from "./related";
-import { buildTopicGraph, topicKey, topicsOf } from "./topics";
+import { neighborPosts, relatedPosts } from "./related";
+import { countTopics, topicKey, topicsOf } from "./topics";
 
 const post = (id, topics, date = "2024-01-01") => ({ id, title: id, date, topics });
 
@@ -13,24 +13,19 @@ test("한 칸에 쉼표로 적힌 태그도 나눈다", () => {
   expect(topicsOf(null)).toEqual([]);
 });
 
-test("같은 글에 함께 붙은 주제를 선으로 잇고, 함께 쓰인 횟수를 센다", () => {
-  const graph = buildTopicGraph([
+test("주제마다 글 수를 세고, 많은 주제부터 이름 순으로 늘어놓는다", () => {
+  const topics = countTopics([
     post("a", ["istio", "kubernetes"]),
     post("b", ["istio", "kubernetes", "network"]),
     post("c", ["golang"]),
   ]);
-  expect(graph.topics.map((t) => [t.key, t.count])).toEqual([
+  expect(topics.map((t) => [t.key, t.count])).toEqual([
     ["istio", 2],
     ["kubernetes", 2],
     ["golang", 1],
     ["network", 1],
   ]);
-  expect(graph.edges).toContainEqual({ a: "istio", b: "kubernetes", weight: 2 });
-  expect(graph.edges).toContainEqual({ a: "istio", b: "network", weight: 1 });
-  expect(graph.edges).toHaveLength(3);
-  // 함께 쓰인 횟수가 많은 이웃부터
-  expect(graph.neighbors.get("istio")).toEqual(["kubernetes", "network"]);
-  expect(graph.neighbors.get("golang")).toEqual([]);
+  expect(countTopics([])).toEqual([]);
 });
 
 test("관련 글은 공유 주제가 많은 순, 같으면 최근 순", () => {
@@ -43,4 +38,19 @@ test("관련 글은 공유 주제가 많은 순, 같으면 최근 순", () => {
     post("none", ["golang"]),
   ];
   expect(relatedPosts(me, all).map((p) => p.id)).toEqual(["two", "one-new", "one-old"]);
+});
+
+test("앞뒤 글은 쓴 순서로 바로 이웃한 글이다", () => {
+  const all = [
+    post("b", [], "2024-01-02"),
+    post("c", [], "2024-01-03"),
+    post("a", [], "2024-01-01"),
+    post("x", [], ""),
+  ];
+  expect(neighborPosts(all[0], all)).toEqual({ older: all[2], newer: all[1] });
+  expect(neighborPosts(all[2], all)).toEqual({ older: null, newer: all[0] });
+  expect(neighborPosts(all[1], all)).toEqual({ older: all[0], newer: null });
+  // 날짜가 없는 글은 차례를 알 수 없어 이웃을 잇지 않는다.
+  expect(neighborPosts(all[3], all)).toEqual({ older: null, newer: null });
+  expect(neighborPosts(post("gone", [], "2024-01-02"), all)).toEqual({ older: null, newer: null });
 });

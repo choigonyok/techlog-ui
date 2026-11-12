@@ -91,6 +91,15 @@ export function rehypeYoutube() {
   };
 }
 
+// 그림만 들어 있는 문단인지 본다(그림 사이의 빈칸·줄바꿈은 괜찮다).
+export function isImageOnly(node) {
+  const children = (node && node.children) || [];
+  const solid = children.filter(
+    (c) => !(c.type === "text" && !c.value.trim()) && !(c.type === "element" && c.tagName === "br")
+  );
+  return solid.length > 0 && solid.every((c) => c.type === "element" && c.tagName === "img");
+}
+
 export function codeLanguage(node) {
   const names = node?.properties?.className;
   if (!Array.isArray(names)) return null;

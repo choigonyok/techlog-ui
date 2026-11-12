@@ -3,11 +3,12 @@ import { Link, useBlocker, useLoaderData, useNavigate } from "react-router-dom";
 import { createPost, updatePost } from "../../adminApi";
 import { getPost, thumbnailUrl } from "../../postApi";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import PostHeader from "../../components/PostHeader";
+import PostHeader, { PostCover } from "../../components/PostHeader";
 import Prose from "../../components/Prose";
 import { formatClock, todayISO } from "../../lib/clock";
 import { clearDraft, isEmptyDraft, loadDraft, saveDraft } from "../../lib/draft";
 import { useDocumentTitle } from "../../lib/hooks";
+import { readingMinutes } from "../../lib/reading";
 import { charLength, findUnfetchableImages, parseTopicInput } from "../../lib/text";
 import { topicsOf } from "../../lib/topics";
 import ThumbnailPicker from "./ThumbnailPicker";
@@ -90,18 +91,23 @@ export function Component() {
       titleLength > LIMIT
         ? `${LIMIT}자를 넘었습니다. ${LIMIT}자 안으로 줄여야 저장됩니다.`
         : tried && !fields.title.trim()
-        ? "제목을 적어 주세요."
-        : "",
+          ? "제목을 적어 주세요."
+          : "",
     subtitle: subtitleLength > LIMIT ? `${LIMIT}자를 넘었습니다. ${LIMIT}자 안으로 줄여야 저장됩니다.` : "",
     tags: topicNames.some((t) => charLength(t) > LIMIT) ? `주제 하나는 ${LIMIT}자까지입니다.` : "",
     text: badImages.length
       ? `이미지 주소는 http:// 나 https:// 로 시작해야 서버가 내려받습니다. 고칠 주소: ${badImages.slice(0, 2).join(", ")}`
       : tried && !fields.text.trim()
-      ? "본문을 적어 주세요."
-      : "",
+        ? "본문을 적어 주세요."
+        : "",
   };
   const blocking =
-    !fields.title.trim() || !fields.text.trim() || titleLength > LIMIT || subtitleLength > LIMIT || errors.tags || badImages.length > 0;
+    !fields.title.trim() ||
+    !fields.text.trim() ||
+    titleLength > LIMIT ||
+    subtitleLength > LIMIT ||
+    errors.tags ||
+    badImages.length > 0;
 
   const dirty = isNew
     ? !isEmptyDraft(fields) || images.length > 0
@@ -238,8 +244,8 @@ export function Component() {
         error instanceof NotConfirmed
           ? "저장했다는 응답을 받았지만 다시 읽어 보니 글이 바뀌지 않았습니다. 잠시 뒤 목록에서 확인해 주세요."
           : error && error.status === 401
-          ? "로그인한 지 오래되어 저장하지 못했습니다. 새 탭에서 관리 화면에 다시 로그인한 뒤, 이 화면에서 다시 저장하세요."
-          : `저장하지 못했습니다. ${error.message}`
+            ? "로그인한 지 오래되어 저장하지 못했습니다. 새 탭에서 관리 화면에 다시 로그인한 뒤, 이 화면에서 다시 저장하세요."
+            : `저장하지 못했습니다. ${error.message}`
       );
     } finally {
       setSaving(false);
@@ -263,166 +269,176 @@ export function Component() {
   const coverSrc = chosen ? chosen.url : !isNew && thumb === "keep" ? thumbnailUrl(post) : null;
 
   return (
-    <form className="editor admin-page" onSubmit={submit} noValidate>
-      <div className="admin-head">
-        <h1 className="admin-head__title">{isNew ? "새 글 쓰기" : "글 수정"}</h1>
-        <div className="segmented" role="group" aria-label="보기 전환">
-          <button type="button" aria-pressed={mode === "write"} onClick={() => setMode("write")}>
-            쓰기
-          </button>
-          <button type="button" aria-pressed={mode === "preview"} onClick={() => setMode("preview")}>
-            미리보기
-          </button>
+    <form className="editor" onSubmit={submit} noValidate>
+      <div className="page-head on-field">
+        <div className="wrap page-head__inner page-head__row">
+          <h1 className="page-head__title">{isNew ? "새 글 쓰기" : "글 수정"}</h1>
+          <div className="segmented" role="group" aria-label="보기 전환">
+            <button type="button" aria-pressed={mode === "write"} onClick={() => setMode("write")}>
+              쓰기
+            </button>
+            <button type="button" aria-pressed={mode === "preview"} onClick={() => setMode("preview")}>
+              미리보기
+            </button>
+          </div>
         </div>
       </div>
 
-      {showRestored && (
-        <div className="notice">
-          <span>{formatClock(restored.savedAt)}에 임시 저장한 글을 불러왔습니다.</span>
-          <button type="button" className="button button--quiet" onClick={discardDraft}>
-            지우고 새로 쓰기
-          </button>
-        </div>
-      )}
-
-      <div className="editor__panes" data-mode={mode}>
-        <section className="editor__write" aria-label="쓰기">
-          <div className="field">
-            <div className="field__row">
-              <label className="field__label" htmlFor="f-title">
-                제목 <span className="field__required">필수</span>
-              </label>
-              <Counter id="f-title-count" length={titleLength} />
-            </div>
-            <input
-              id="f-title"
-              className="input"
-              value={fields.title}
-              onChange={update("title")}
-              autoComplete="off"
-              aria-required="true"
-              aria-invalid={Boolean(errors.title)}
-              aria-describedby={`f-title-count${errors.title ? " f-title-error" : ""}`}
-            />
-            {errors.title && (
-              <p id="f-title-error" className="field__error" role="alert">
-                {errors.title}
-              </p>
-            )}
+      <div className="wrap editor__body">
+        {showRestored && (
+          <div className="notice">
+            <span>{formatClock(restored.savedAt)}에 임시 저장한 글을 불러왔습니다.</span>
+            <button type="button" className="button button--quiet" onClick={discardDraft}>
+              지우고 새로 쓰기
+            </button>
           </div>
-
-          <div className="field">
-            <div className="field__row">
-              <label className="field__label" htmlFor="f-subtitle">
-                부제
-              </label>
-              <Counter id="f-subtitle-count" length={subtitleLength} />
-            </div>
-            <input
-              id="f-subtitle"
-              className="input"
-              value={fields.subtitle}
-              onChange={update("subtitle")}
-              autoComplete="off"
-              aria-invalid={Boolean(errors.subtitle)}
-              aria-describedby={`f-subtitle-count${errors.subtitle ? " f-subtitle-error" : ""}`}
-            />
-            {errors.subtitle && (
-              <p id="f-subtitle-error" className="field__error" role="alert">
-                {errors.subtitle}
-              </p>
-            )}
-          </div>
-
-          <div className="field">
-            <label className="field__label" htmlFor="f-tags">
-              주제
-            </label>
-            <input
-              id="f-tags"
-              className="input"
-              value={fields.tags}
-              onChange={update("tags")}
-              autoComplete="off"
-              placeholder="istio, kubernetes"
-              aria-invalid={Boolean(errors.tags)}
-              aria-describedby={`f-tags-help${errors.tags ? " f-tags-error" : ""}`}
-            />
-            <p id="f-tags-help" className="field__help">
-              쉼표로 나눠 적습니다.
-              {topicNames.length > 0 && ` 주제 ${topicNames.length}개: ${topicsOf(topicNames).join(", ")}`}
-            </p>
-            {errors.tags && (
-              <p id="f-tags-error" className="field__error" role="alert">
-                {errors.tags}
-              </p>
-            )}
-          </div>
-
-          <ThumbnailPicker
-            isNew={isNew}
-            current={post ? thumbnailUrl(post) : null}
-            images={images}
-            value={thumb}
-            onPick={setThumb}
-            onAdd={addImages}
-            onRemove={removeImage}
-          />
-
-          <div className="field">
-            <label className="field__label" htmlFor="f-text">
-              본문 <span className="field__required">필수</span>
-            </label>
-            <p id="f-text-help" className="field__help">
-              마크다운으로 씁니다. 이미지는 ![설명](https://…) 처럼 주소로 넣으면 저장할 때 서버가 내려받아 보관합니다.
-            </p>
-            <textarea
-              id="f-text"
-              className="textarea editor__text"
-              value={fields.text}
-              onChange={update("text")}
-              spellCheck={false}
-              aria-required="true"
-              aria-invalid={Boolean(errors.text)}
-              aria-describedby={`f-text-help${errors.text ? " f-text-error" : ""}`}
-            />
-            {errors.text && (
-              <p id="f-text-error" className="field__error" role="alert">
-                {errors.text}
-              </p>
-            )}
-          </div>
-        </section>
-
-        <section className="editor__preview" aria-label="미리보기">
-          <p className="editor__pane-label">미리보기</p>
-          <div className="article">
-            <PostHeader post={previewPost} titleAs="h2" linkTopics={false} coverSrc={coverSrc} />
-            {previewText.trim() ? (
-              <Prose source={previewText} headingBase={3} />
-            ) : (
-              <p className="editor__empty">본문을 쓰면 글 화면과 같은 모양으로 여기에 보입니다.</p>
-            )}
-          </div>
-        </section>
-      </div>
-
-      <div className="editor__actions">
-        <p className="editor__saved">
-          {isNew && savedAt ? `${formatClock(savedAt)}에 이 브라우저에 임시 저장했습니다.` : ""}
-        </p>
-        {submitError && (
-          <p className="notice editor__error" data-tone="danger" role="alert">
-            {submitError}
-          </p>
         )}
-        <div className="editor__buttons">
-          <Link to="/admin" className="button button--quiet">
-            목록으로
-          </Link>
-          <button type="submit" className="button button--primary" disabled={saving}>
-            {saving ? (isNew ? "올리는 중" : "저장하는 중") : isNew ? "글 올리기" : "수정 저장"}
-          </button>
+
+        <div className="editor__panes" data-mode={mode}>
+          <section className="editor__write" aria-label="쓰기">
+            <div className="field">
+              <div className="field__row">
+                <label className="field__label" htmlFor="f-title">
+                  제목 <span className="field__required">필수</span>
+                </label>
+                <Counter id="f-title-count" length={titleLength} />
+              </div>
+              <input
+                id="f-title"
+                className="input"
+                value={fields.title}
+                onChange={update("title")}
+                autoComplete="off"
+                aria-required="true"
+                aria-invalid={Boolean(errors.title)}
+                aria-describedby={`f-title-count${errors.title ? " f-title-error" : ""}`}
+              />
+              {errors.title && (
+                <p id="f-title-error" className="field__error" role="alert">
+                  {errors.title}
+                </p>
+              )}
+            </div>
+
+            <div className="field">
+              <div className="field__row">
+                <label className="field__label" htmlFor="f-subtitle">
+                  부제
+                </label>
+                <Counter id="f-subtitle-count" length={subtitleLength} />
+              </div>
+              <input
+                id="f-subtitle"
+                className="input"
+                value={fields.subtitle}
+                onChange={update("subtitle")}
+                autoComplete="off"
+                aria-invalid={Boolean(errors.subtitle)}
+                aria-describedby={`f-subtitle-count${errors.subtitle ? " f-subtitle-error" : ""}`}
+              />
+              {errors.subtitle && (
+                <p id="f-subtitle-error" className="field__error" role="alert">
+                  {errors.subtitle}
+                </p>
+              )}
+            </div>
+
+            <div className="field">
+              <label className="field__label" htmlFor="f-tags">
+                주제
+              </label>
+              <input
+                id="f-tags"
+                className="input"
+                value={fields.tags}
+                onChange={update("tags")}
+                autoComplete="off"
+                placeholder="istio, kubernetes"
+                aria-invalid={Boolean(errors.tags)}
+                aria-describedby={`f-tags-help${errors.tags ? " f-tags-error" : ""}`}
+              />
+              <p id="f-tags-help" className="field__help">
+                쉼표로 나눠 적습니다.
+                {topicNames.length > 0 && ` 주제 ${topicNames.length}개: ${topicsOf(topicNames).join(", ")}`}
+              </p>
+              {errors.tags && (
+                <p id="f-tags-error" className="field__error" role="alert">
+                  {errors.tags}
+                </p>
+              )}
+            </div>
+
+            <ThumbnailPicker
+              isNew={isNew}
+              current={post ? thumbnailUrl(post) : null}
+              images={images}
+              value={thumb}
+              onPick={setThumb}
+              onAdd={addImages}
+              onRemove={removeImage}
+            />
+
+            <div className="field">
+              <label className="field__label" htmlFor="f-text">
+                본문 <span className="field__required">필수</span>
+              </label>
+              <p id="f-text-help" className="field__help">
+                마크다운으로 씁니다. 이미지는 ![설명](https://…) 처럼 주소로 넣으면 저장할 때 서버가 내려받아
+                보관합니다.
+              </p>
+              <textarea
+                id="f-text"
+                className="textarea editor__text"
+                value={fields.text}
+                onChange={update("text")}
+                spellCheck={false}
+                aria-required="true"
+                aria-invalid={Boolean(errors.text)}
+                aria-describedby={`f-text-help${errors.text ? " f-text-error" : ""}`}
+              />
+              {errors.text && (
+                <p id="f-text-error" className="field__error" role="alert">
+                  {errors.text}
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section className="editor__preview" aria-label="미리보기">
+            <p className="editor__pane-label">미리보기</p>
+            <div className="preview">
+              <div className="preview__head on-field">
+                <PostHeader post={previewPost} titleAs="h2" linkTopics={false} minutes={readingMinutes(previewText)} />
+              </div>
+              <div className="preview__body">
+                <PostCover key={coverSrc || "none"} src={coverSrc} />
+                {previewText.trim() ? (
+                  <Prose source={previewText} headingBase={3} />
+                ) : (
+                  <p className="editor__empty">본문을 쓰면 글 화면과 같은 모양으로 여기에 보입니다.</p>
+                )}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div className="editor__actions">
+          <p className="editor__saved">
+            {isNew && savedAt ? `${formatClock(savedAt)}에 이 브라우저에 임시 저장했습니다.` : ""}
+          </p>
+          {submitError && (
+            <p className="notice editor__error" data-tone="danger" role="alert">
+              {submitError}
+            </p>
+          )}
+          <div className="editor__buttons">
+            <Link to="/admin" className="button button--quiet">
+              목록으로
+            </Link>
+            <button type="submit" className="button button--primary" disabled={saving}>
+              {saving ? (isNew ? "올리는 중" : "저장하는 중") : isNew ? "글 올리기" : "수정 저장"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -435,7 +451,9 @@ export function Component() {
         onCancel={() => blocker.reset && blocker.reset()}
       >
         {isNew ? (
-          <p>쓰던 글은 이 브라우저에 임시 저장되어 있어 다시 열면 이어 쓸 수 있습니다. 고른 이미지는 다시 골라야 합니다.</p>
+          <p>
+            쓰던 글은 이 브라우저에 임시 저장되어 있어 다시 열면 이어 쓸 수 있습니다. 고른 이미지는 다시 골라야 합니다.
+          </p>
         ) : (
           <p>고친 내용은 저장되지 않고 사라집니다.</p>
         )}

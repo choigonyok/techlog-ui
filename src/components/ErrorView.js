@@ -28,24 +28,26 @@ export function Problem({ kind }) {
   const [title, body] = COPY[kind];
   useDocumentTitle(title);
   return (
-    <div className="problem">
-      <h1 className="problem__title">{title}</h1>
-      <p className="problem__body">{body}</p>
-      <div className="problem__actions">
-        {kind === "forbidden" ? (
-          <a className="button button--primary" href="/login">
-            다른 계정으로 로그인
-          </a>
-        ) : kind !== "notfound" ? (
-          <button type="button" className="button button--primary" onClick={reload}>
-            다시 불러오기
-          </button>
-        ) : null}
-        {kind !== "stale" && (
-          <a className={`button${kind === "notfound" ? " button--primary" : ""}`} href="/">
-            처음 화면으로
-          </a>
-        )}
+    <div className="wrap">
+      <div className="problem">
+        <h1 className="problem__title">{title}</h1>
+        <p className="problem__body">{body}</p>
+        <div className="problem__actions">
+          {kind === "forbidden" ? (
+            <a className="button button--primary" href="/login">
+              다른 계정으로 로그인
+            </a>
+          ) : kind !== "notfound" ? (
+            <button type="button" className="button button--primary" onClick={reload}>
+              다시 불러오기
+            </button>
+          ) : null}
+          {kind !== "stale" && (
+            <a className={`button${kind === "notfound" ? " button--primary" : ""}`} href="/">
+              처음 화면으로
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

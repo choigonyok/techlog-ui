@@ -1,17 +1,10 @@
-/* 좁은 화면 가운데 놓이는 단일 작업 화면(로그인 등) */
+/* 한 가지 일만 하는 화면(로그인 등): 쪽 머리 아래에 짧은 안내와 버튼 하나 */
 .narrow {
-  max-width: 34rem;
-  margin: 0 auto;
-  padding: 48px var(--gutter) 0;
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
   justify-items: start;
-}
-
-.narrow h1 {
-  font-size: 1.5rem;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
+  max-width: var(--measure);
+  padding-top: var(--space-6);
 }
 
 .narrow p {

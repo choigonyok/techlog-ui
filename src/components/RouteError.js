@@ -17,13 +17,15 @@ class LoadGuard extends Component {
   render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <div className="problem">
-        <h1 className="problem__title">화면을 불러오지 못했습니다</h1>
-        <p className="problem__body">연결을 확인한 뒤 다시 불러오세요.</p>
-        <div className="problem__actions">
-          <button type="button" className="button button--primary" onClick={reload}>
-            다시 불러오기
-          </button>
+      <div className="wrap">
+        <div className="problem">
+          <h1 className="problem__title">화면을 불러오지 못했습니다</h1>
+          <p className="problem__body">연결을 확인한 뒤 다시 불러오세요.</p>
+          <div className="problem__actions">
+            <button type="button" className="button button--primary" onClick={reload}>
+              다시 불러오기
+            </button>
+          </div>
         </div>
       </div>
     );

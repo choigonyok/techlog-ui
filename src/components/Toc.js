@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import Icon from "./Icon";
 import "./Toc.css";
 
 function prefersReducedMotion() {
@@ -121,10 +122,25 @@ function TocList({ headings, activeId, onPick }) {
 
 // 넓은 화면: 본문 옆에서 따라 내려오는 목차
 export function TocAside({ headings, activeId }) {
+  const navRef = useRef(null);
+
+  // 목차가 화면보다 길면 레일 안에서 따로 스크롤된다. 지금 읽는 절이 레일 밖으로 나가면 안으로 들인다.
+  // 쪽 전체가 따라 움직이지 않게 레일의 스크롤만 옮긴다.
+  useEffect(() => {
+    const nav = navRef.current;
+    const box = nav && nav.closest(".split__sticky");
+    const current = nav && nav.querySelector('[aria-current="location"]');
+    if (!box || !current || box.scrollHeight <= box.clientHeight) return;
+    const top = current.getBoundingClientRect().top - box.getBoundingClientRect().top;
+    if (top < 48) box.scrollTop += top - 48;
+    else if (top + current.offsetHeight > box.clientHeight - 48)
+      box.scrollTop += top + current.offsetHeight - box.clientHeight + 48;
+  }, [activeId]);
+
   if (headings.length < 2) return null;
   return (
-    <nav className="toc" aria-labelledby="toc-title">
-      <h2 id="toc-title" className="toc__title">
+    <nav ref={navRef} className="toc" aria-labelledby="toc-title">
+      <h2 id="toc-title" className="rail-title">
         목차
       </h2>
       <TocList headings={headings} activeId={activeId} />
@@ -132,17 +148,50 @@ export function TocAside({ headings, activeId }) {
   );
 }
 
-// 좁은 화면: 위에 붙어 지금 읽는 절을 보여 주고, 누르면 펼쳐지는 목차
-export function TocBar({ headings, activeId }) {
+// 본문(rootRef)을 얼마나 읽었는지를 막대(barRef)의 길이로 보인다. 스크롤마다 화면을 다시 그리지 않도록
+// 상태에 두지 않고 막대의 transform 만 바꾼다.
+function useReadingProgress(rootRef, barRef, enabled) {
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const root = rootRef.current;
+      const bar = barRef.current;
+      if (!root || !bar) return;
+      const rect = root.getBoundingClientRect();
+      const span = rect.height - window.innerHeight;
+      const done = span > 0 ? Math.min(1, Math.max(0, -rect.top / span)) : rect.top <= 0 ? 1 : 0;
+      bar.style.transform = `scaleX(${done.toFixed(4)})`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [rootRef, barRef, enabled]);
+}
+
+// 좁은 화면: 위에 붙어 지금 읽는 절과 읽은 만큼을 보여 주고, 누르면 펼쳐지는 목차
+export function TocBar({ headings, activeId, articleRef }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const buttonRef = useRef(null);
+  const progressRef = useRef(null);
 
   const shown = headings.length >= 2;
+  useReadingProgress(articleRef, progressRef, shown);
+
   useEffect(() => {
     if (!shown) return undefined;
-    document.documentElement.classList.add("has-toc-bar");
-    return () => document.documentElement.classList.remove("has-toc-bar");
+    document.documentElement.classList.add("has-top-bar");
+    return () => document.documentElement.classList.remove("has-top-bar");
   }, [shown]);
 
   useEffect(() => {
@@ -179,10 +228,9 @@ export function TocBar({ headings, activeId }) {
       >
         <span className="toc-bar__label">목차</span>
         <span className="toc-bar__current">{current ? current.text : ""}</span>
-        <svg className="toc-bar__chevron" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-          <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+        <Icon name="down" size={18} className="toc-bar__chevron" />
       </button>
+      <div className="toc-bar__progress" ref={progressRef} aria-hidden="true" />
       <div id="toc-sheet" className="toc-bar__sheet" hidden={!open}>
         <TocList headings={headings} activeId={activeId} onPick={() => setOpen(false)} />
       </div>

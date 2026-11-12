@@ -1,4 +1,4 @@
-import { codeLanguage, rehypeHeadings, rehypeYoutube, youtubeId } from "./markdownTree";
+import { codeLanguage, isImageOnly, rehypeHeadings, rehypeYoutube, youtubeId } from "./markdownTree";
 
 const h = (tagName, text) => ({ type: "element", tagName, properties: {}, children: [{ type: "text", value: text }] });
 const levels = (tree) => tree.children.map((n) => `${n.tagName}#${n.properties.id}`);
@@ -50,4 +50,15 @@ test("유튜브 iframe 원문만 영상 틀로 바꾸고 다른 HTML 원문은 �
 test("코드 블록 언어를 class 에서 읽는다", () => {
   expect(codeLanguage({ properties: { className: ["language-YAML"] } })).toBe("yaml");
   expect(codeLanguage({ properties: {} })).toBe(null);
+});
+
+test("그림만 있는 문단을 알아본다", () => {
+  const img = { type: "element", tagName: "img", properties: {}, children: [] };
+  const text = (value) => ({ type: "text", value });
+  expect(isImageOnly({ children: [img] })).toBe(true);
+  expect(isImageOnly({ children: [img, text("\n"), img] })).toBe(true);
+  expect(isImageOnly({ children: [text("그림: "), img] })).toBe(false);
+  expect(isImageOnly({ children: [text("글만")] })).toBe(false);
+  expect(isImageOnly({ children: [] })).toBe(false);
+  expect(isImageOnly(undefined)).toBe(false);
 });

@@ -1,62 +1,118 @@
 /*
   색은 세 무리다.
-  - 종이(paper): 사람이 쓴 글이 놓이는 서늘한 회백 바탕과 남색 글자
-  - 패널(panel): 메시·코드처럼 기계가 낸 것을 담는 남색 판
-  - 신호(signal): 지금 선택된 것에만 쓰는 주황. 옛 프로필 사진 테두리(#FF2A00)에서 왔고,
-    흰 글자를 얹어 4.5:1 을 넘기도록 명도만 낮췄다(4.68:1).
+  - 종이(paper): 사람이 쓴 글이 놓이는 바탕과 먹색 글자. 초록 기운을 조금 섞은 흰색이다.
+  - 판(field): 머리 막대·쪽 머리·기록 그림처럼 사이트가 말하는 자리의 깊은 초록.
+    코드 판(code)은 같은 계열에서 더 어둡고 덜 진하다(구문 색이 번지지 않게).
+  - 신호(signal): 판 위에서 '지금 고른 것·지금 값'에만 쓰는 민트. 종이 위에서는 같은 뜻으로
+    막대·밑줄에 mark 를, 글자에 accent-ink 를 쓴다.
+  짝마다의 명도 대비는 tokens.test.js 가 지킨다.
+
+  테마는 html 의 data-theme 으로 고른다. public/index.html 의 머리 스크립트가 첫 그림 전에 붙인다.
 */
 :root {
   color-scheme: light;
 
-  --paper: #eef1f5;
-  --raised: #f8f9fb;
-  --tint: #e1e6ee;
-  --ink: #16233f;
-  --ink-soft: #44526c;
-  --ink-faint: #56637a;
-  --rule: #c9d1dc;
-  --line-strong: #7b889e;
+  --paper: #f6f8f5;
+  --surface: #ffffff;
+  --tint: #ebf0ea;
+  --ink: #11231b;
+  --ink-soft: #3e5248;
+  --ink-faint: #5c6f65;
+  --rule: #d5ddd5;
+  --line-strong: #74877c;
 
-  --panel: #15223c;
-  --panel-raised: #1d2c4a;
-  --panel-border: #15223c;
-  --panel-ink: #e4eaf3;
-  --panel-soft: #b7c2d4;
-  --panel-dim: #8f9cb4;
-  --panel-edge: #3b4c6c;
+  --field: #0e3b2c;
+  --field-raised: #165241;
+  --field-ink: #eef5f0;
+  --field-soft: #b5cbbf;
+  --field-dim: #8faa9c;
+  --field-rule: #2a5e4a;
 
-  --signal: #e22402;
-  --on-signal: #ffffff;
-  --signal-panel: #ff7a50;
+  --signal: #6cf0a8;
+  --mark: #1a9453;
+  --accent-ink: #0f6b40;
+  --select: #c9ecd6;
+
+  /* 기록 그림의 주 칸: 글이 없는 주, 그리고 많이 쓴 주일수록 밝게 세 단계 */
+  --cell-0: #215a45;
+  --cell-1: #3a9a6b;
+  --cell-2: #4fc487;
+  --cell-3: #6cf0a8;
 
   --danger: #b42318;
   --on-danger: #ffffff;
-  --focus: #16233f;
-  --shadow-pop: 0 18px 48px rgba(12, 21, 40, 0.24);
+  --focus: #11231b;
+  --shadow-pop: 0 18px 48px rgba(8, 28, 20, 0.22);
+  --scrim: rgba(6, 20, 15, 0.56);
 
-  --syn-keyword: #8cc3ff;
-  --syn-string: #a5dbb2;
-  --syn-number: #cdb6ff;
-  --syn-title: #e9d58e;
-  --syn-attr: #97d3e2;
-  --syn-comment: #8f9cb4;
-  --syn-meta: #b7c2d4;
+  --code: #0b2a20;
+  --code-ink: #e6efe9;
+  --code-dim: #86a295;
+  --code-rule: #1d4536;
+  --syn-keyword: #8fd0ff;
+  --syn-string: #a8eec1;
+  --syn-number: #f2c58a;
+  --syn-title: #ffe08a;
+  --syn-attr: #9be3e0;
+  --syn-comment: #86a295;
+  --syn-meta: #b9c9c0;
   --syn-deletion: #ffb4b4;
 
-  --font-sans: "IBM Plex Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
-    "Noto Sans KR", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "IBM Plex Sans KR", monospace;
+  --font-sans:
+    "Wanted Sans Variable", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR",
+    sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Wanted Sans Variable", monospace;
+
+  /* 굵기는 가변 글꼴 한 벌에서 고른다. 본문 400, 이름표 500, 제목 650, 큰 제목 800. */
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-title: 650;
+  --w-strong: 750;
+  --w-display: 800;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-display: clamp(1.75rem, 1.05rem + 3vw, 2.75rem);
+
+  /* 간격은 4px 의 배수 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
 
   /* 본문 한 줄이 공백 포함 약 38자가 되는 폭(넓은 화면의 본문 18px 기준) */
   --measure: 34rem;
   --page: 1200px;
   --gutter: 16px;
-  --radius-panel: 14px;
-  --radius-code: 10px;
+  --rail: 248px;
+  --rail-gap: clamp(40px, 5vw, 72px);
+  --bar: 56px;
+
   --radius-control: 8px;
+  --radius-panel: 10px;
+  --radius-pop: 12px;
 
   /* 손가락으로 누르는 요소의 최소 크기. 마우스가 주 입력이면 조금 줄인다. */
   --target: 44px;
+
+  --z-sticky: 20;
+  --z-sheet: 30;
+  --z-progress: 90;
+  --z-skip: 100;
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --fast: 140ms;
 }
 
 @media (pointer: fine) {
@@ -71,31 +127,36 @@
   }
 }
 
-/* 원본 화면이 어두운 바탕이었다. 시스템 설정이 다크면 깊은 남색 바탕으로 잇는다. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+:root[data-theme="dark"] {
+  color-scheme: dark;
 
-    --paper: #0c1322;
-    --raised: #131c2f;
-    --tint: #1a2439;
-    --ink: #dce3ed;
-    --ink-soft: #a7b3c6;
-    --ink-faint: #8c99af;
-    --rule: #26324a;
-    --line-strong: #66758f;
+  --paper: #0e1512;
+  --surface: #141f1a;
+  --tint: #19271f;
+  --ink: #e4ece6;
+  --ink-soft: #aebfb5;
+  --ink-faint: #8da196;
+  --rule: #24352c;
+  --line-strong: #6b8377;
 
-    --panel: #111c32;
-    --panel-raised: #1a2742;
-    --panel-border: #26344f;
-    --panel-edge: #34445f;
+  --field: #103a2c;
+  --field-raised: #185140;
 
-    --signal: #ff6e40;
-    --on-signal: #0c1322;
+  --mark: #3fcf85;
+  --accent-ink: #5ee39b;
+  --select: #1f5b41;
 
-    --danger: #ff8a80;
-    --on-danger: #0c1322;
-    --focus: #dce3ed;
-    --shadow-pop: 0 18px 48px rgba(0, 0, 0, 0.5);
-  }
+  --danger: #ff8a80;
+  --on-danger: #0e1512;
+  --focus: #e4ece6;
+  --shadow-pop: 0 18px 48px rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --code: #11261e;
+  --code-rule: #24352c;
+}
+
+/* 판 위에 놓인 것은 초점 고리도 판의 글자색을 따른다. */
+.on-field {
+  --focus: var(--field-ink);
 }

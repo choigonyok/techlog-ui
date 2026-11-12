@@ -1,64 +1,121 @@
-.post-page {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: 0 var(--gutter);
-  display: grid;
-  grid-template-columns: minmax(0, var(--measure));
-  justify-content: center;
+.post-back {
+  margin-bottom: var(--space-2);
 }
 
-.post-page__main {
-  min-width: 0;
-}
-
-.post-page__back {
-  margin-bottom: 12px;
-}
-
-.post-page__back a {
+.post-back a {
   display: inline-flex;
   align-items: center;
+  gap: 2px;
   min-height: var(--target);
-  color: var(--ink-soft);
-  font-size: 0.9375rem;
+  margin-left: -4px;
+  color: var(--field-soft);
+  font-size: var(--text-base);
+  text-decoration: none;
 }
 
-.post-page__back a:hover {
-  color: var(--ink);
+.post-back a:hover {
+  color: var(--field-ink);
+  text-decoration: underline;
 }
 
-.post-page__aside {
-  display: none;
+/* 좁은 화면에서는 목차 막대가 쪽 머리 바로 아래에 붙는다. */
+.post .split__main {
+  padding-top: var(--space-5);
 }
 
-@media (min-width: 1100px) {
-  .post-page {
-    grid-template-columns: minmax(0, var(--measure)) 220px;
-    column-gap: 64px;
+.post .toc-bar {
+  margin-top: calc(-1 * var(--space-5));
+}
+
+@media (min-width: 1024px) {
+  .post .split__main {
+    padding-top: var(--space-7);
   }
 
-  .post-page__aside {
-    display: block;
+  .post .split__rail {
+    padding-top: var(--space-7);
+  }
+}
+
+.post-after {
+  margin-top: var(--space-8);
+}
+
+/* 앞뒤 글 */
+.post-nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--ink);
+}
+
+.post-nav__link {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+}
+
+.post-nav__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+}
+
+.post-nav__link--older .post-nav__label {
+  margin-left: -4px;
+}
+
+.post-nav__link--newer .post-nav__label {
+  margin-right: -4px;
+}
+
+.post-nav__title {
+  font-size: var(--text-lg);
+  font-weight: var(--w-title);
+  line-height: 1.42;
+  letter-spacing: -0.018em;
+}
+
+.post-nav__link:hover .post-nav__title {
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+
+.post-nav__link--newer {
+  justify-items: end;
+  text-align: right;
+}
+
+@media (min-width: 640px) {
+  .post-nav {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-6);
+    border-bottom: 1px solid var(--rule);
   }
 
-  .post-page__aside .toc {
-    position: sticky;
-    top: 24px;
-    max-height: calc(100vh - 48px);
-    overflow-y: auto;
-    /* 본문 첫 줄과 높이를 맞춘다 */
-    margin-top: 56px;
+  .post-nav__link {
+    border-bottom: 0;
   }
 }
 
 .related {
-  margin-top: 72px;
-  padding-top: 24px;
-  border-top: 1px solid var(--rule);
-  display: grid;
-  gap: 12px;
+  margin-top: var(--space-7);
 }
 
 .related__title {
-  font-size: 1.125rem;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--ink);
+  font-size: var(--text-base);
+  font-weight: var(--w-strong);
+  letter-spacing: -0.01em;
+}
+
+.post-after__back {
+  margin-top: var(--space-6);
 }

@@ -20,9 +20,9 @@ export async function loader({ request }) {
 
 export function HydrateFallback() {
   return (
-    <div className="narrow">
-      <p role="status">로그인하는 중입니다.</p>
-    </div>
+    <p className="wrap page-waiting" role="status">
+      로그인하는 중입니다.
+    </p>
   );
 }
 
@@ -32,16 +32,24 @@ export function Component() {
   useDocumentTitle("로그인");
 
   return (
-    <div className="narrow">
-      <h1>{forbidden ? "허가되지 않은 계정입니다" : "로그인하지 못했습니다"}</h1>
-      <p>
-        {forbidden
-          ? "이 GitHub 계정으로는 관리 화면에 들어갈 수 없습니다."
-          : "GitHub 확인이 끝나지 않았습니다. 처음부터 다시 로그인하세요."}
-      </p>
-      <Link className="button button--primary" to={forbidden ? "/" : "/login"}>
-        {forbidden ? "처음 화면으로" : "다시 로그인"}
-      </Link>
-    </div>
+    <>
+      <div className="page-head on-field">
+        <div className="wrap page-head__inner">
+          <h1 className="page-head__title">{forbidden ? "허가되지 않은 계정입니다" : "로그인하지 못했습니다"}</h1>
+        </div>
+      </div>
+      <div className="wrap">
+        <div className="narrow">
+          <p>
+            {forbidden
+              ? "이 GitHub 계정으로는 관리 화면에 들어갈 수 없습니다."
+              : "GitHub 확인이 끝나지 않았습니다. 처음부터 다시 로그인하세요."}
+          </p>
+          <Link className="button button--primary" to={forbidden ? "/" : "/login"}>
+            {forbidden ? "처음 화면으로" : "다시 로그인"}
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }

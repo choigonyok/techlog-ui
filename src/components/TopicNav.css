@@ -1,0 +1,125 @@
+/* 좁은 화면: 위에 붙어 옆으로 미는 한 줄 */
+.topic-strip {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  margin-inline: calc(-1 * var(--gutter));
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+
+/* 오른쪽 끝을 흐려 옆으로 더 있음을 알린다. 끝까지 밀면 마지막 칩이 흐린 자리를 벗어나도록 여백을 둔다.
+   position 을 주어 칩 안의 숨긴 글자(.sr-only, absolute)가 이 줄과 함께 잘리게 한다.
+   주지 않으면 줄 밖으로 나가 쪽 전체가 옆으로 넓어진다. */
+.topic-strip__list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 6px 40px 6px var(--gutter);
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+}
+
+.topic-strip__list::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chip__count {
+  color: var(--ink-faint);
+}
+
+.chip:focus-visible {
+  outline-offset: -2px;
+}
+
+/* 고른 칩은 판 색으로 채운다. */
+.chip[aria-current="true"] {
+  background: var(--field);
+  border-color: var(--field);
+  color: var(--field-ink);
+  font-weight: var(--w-title);
+}
+
+.chip[aria-current="true"] .chip__count {
+  color: var(--signal);
+  font-weight: var(--w-regular);
+}
+
+/* 넓은 화면: 본문 옆에 서 있는 목록 */
+.topic-index__list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1) 0 0;
+}
+
+.topic-index__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  min-height: var(--target);
+  padding: 2px var(--space-2) 2px var(--space-3);
+  border-left: 3px solid transparent;
+  color: var(--ink-soft);
+  font-size: var(--text-base);
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.topic-index__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.topic-index__count {
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+}
+
+.topic-index__item:hover {
+  background: var(--tint);
+  color: var(--ink);
+}
+
+.topic-index__item:focus-visible {
+  outline-offset: -2px;
+}
+
+/* 지금 고른 주제: 왼쪽 막대와 굵은 글자(목차의 '지금 읽는 절'과 같은 표시) */
+.topic-index__item[aria-current="true"] {
+  border-left-color: var(--mark);
+  color: var(--ink);
+  font-weight: var(--w-strong);
+}
+
+.topic-index__item[aria-current="true"] .topic-index__count {
+  color: var(--ink-soft);
+  font-weight: var(--w-regular);
+}
+
+@media (min-width: 1024px) {
+  .topic-strip {
+    display: none;
+  }
+}

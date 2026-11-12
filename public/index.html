@@ -4,14 +4,36 @@
     <meta charset="utf-8" />
     <meta name="google-site-verification" content="13My1x50Kzo3FNGldq1N7k8y_BBtnoGQg6RDFZrxGJA" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c1322" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0e3b2c" />
     <meta
       name="description"
       content="DevSecOps 엔지니어 최윤석의 기술 기록. 쿠버네티스, Istio, 클라우드 인프라를 다룹니다."
     />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="techlog" />
+    <meta property="og:title" content="techlog - 최윤석의 기술 기록" />
+    <meta
+      property="og:description"
+      content="DevSecOps 엔지니어 최윤석의 기술 기록. 쿠버네티스, Istio, 클라우드 인프라를 다룹니다."
+    />
+    <meta property="og:image" content="https://tech.choigonyok.com/logo512.png" />
+    <script>
+      // 첫 그림 전에 테마를 정한다. 고른 적이 있으면 그것을, 없으면 시스템 설정을 따른다.
+      // 키와 색은 src/lib/theme.js 와 같아야 한다.
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem("techlog:theme");
+        } catch (e) {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        if (theme === "dark") document.querySelector('meta[name="theme-color"]').setAttribute("content", "#103a2c");
+      })();
+    </script>
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" sizes="any" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>techlog</title>

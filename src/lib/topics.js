@@ -24,53 +24,13 @@ export function topicsOf(tags) {
   return out;
 }
 
-const SEP = "\u0000";
-
-// 주제를 노드로, 같은 글에 함께 붙은 주제 쌍을 선으로 잇는 그래프를 만든다.
-// weight 는 두 주제가 함께 붙은 글 수다.
-export function buildTopicGraph(posts) {
+// 주제마다 글이 몇 편인지 센다. 글이 많은 주제부터, 같으면 이름 순이다.
+export function countTopics(posts) {
   const counts = new Map();
-  const pairs = new Map();
-
   for (const post of posts) {
-    const keys = [...new Set(post.topics)].sort();
-    for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
-    for (let i = 0; i < keys.length; i += 1) {
-      for (let j = i + 1; j < keys.length; j += 1) {
-        const id = keys[i] + SEP + keys[j];
-        pairs.set(id, (pairs.get(id) ?? 0) + 1);
-      }
-    }
+    for (const key of new Set(post.topics)) counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-
-  const topics = [...counts]
+  return [...counts]
     .map(([key, count]) => ({ key, count }))
     .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
-
-  const edges = [...pairs]
-    .map(([id, weight]) => {
-      const [a, b] = id.split(SEP);
-      return { a, b, weight };
-    })
-    .sort((x, y) => y.weight - x.weight || (x.a + x.b).localeCompare(y.a + y.b));
-
-  const weightOf = new Map();
-  const neighbors = new Map(topics.map((t) => [t.key, []]));
-  for (const { a, b, weight } of edges) {
-    neighbors.get(a).push(b);
-    neighbors.get(b).push(a);
-    weightOf.set(a + SEP + b, weight);
-    weightOf.set(b + SEP + a, weight);
-  }
-  // 함께 쓰인 횟수가 많은 주제부터 읽히도록 정렬한다.
-  for (const [key, list] of neighbors) {
-    list.sort(
-      (x, y) =>
-        weightOf.get(key + SEP + y) - weightOf.get(key + SEP + x) ||
-        counts.get(y) - counts.get(x) ||
-        x.localeCompare(y)
-    );
-  }
-
-  return { topics, edges, neighbors };
 }
