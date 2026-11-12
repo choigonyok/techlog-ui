@@ -1,15 +1,13 @@
 import { useRef, useState } from "react";
-import { thumbnailUrl } from "../../postApi";
-
-function CurrentThumb({ postId }) {
+function CurrentThumb({ src }) {
   const [failed, setFailed] = useState(false);
-  if (failed) return <span className="thumb__empty">썸네일 없음</span>;
-  return <img className="thumb__img" src={thumbnailUrl(postId)} alt="" onError={() => setFailed(true)} />;
+  if (!src || failed) return <span className="thumb__empty">썸네일 없음</span>;
+  return <img className="thumb__img" src={src} alt="" onError={() => setFailed(true)} />;
 }
 
 // 썸네일로 쓸 이미지를 직접 고른다. 고른 이미지 한 장만 서버로 올라간다.
 // 라디오 단추라 키보드(화살표)와 화면 낭독기로도 고를 수 있다.
-export default function ThumbnailPicker({ isNew, postId, images, value, onPick, onAdd, onRemove }) {
+export default function ThumbnailPicker({ isNew, current, images, value, onPick, onAdd, onRemove }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
 
@@ -46,7 +44,7 @@ export default function ThumbnailPicker({ isNew, postId, images, value, onPick, 
               checked={value === "keep"}
               onChange={() => onPick("keep")}
             />
-            <CurrentThumb postId={postId} />
+            <CurrentThumb src={current} />
             <span className="thumb__name">지금 썸네일 유지</span>
           </label>
         )}

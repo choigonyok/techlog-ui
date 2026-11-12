@@ -1,4 +1,5 @@
-// 모의 서버(mock/server.mjs) 위에서 도는 주요 흐름 시험.
+// 로컬 Worker 위에서 도는 주요 흐름 시험. 관리 화면 시험은 CYPRESS_ADMIN_TOKEN 이 있을 때만 돈다
+// (../worker 에서 node scripts/dev-token.mjs 로 만든다).
 
 describe("홈", () => {
   it("목록은 날짜순, 주제를 고르면 주소에 남고 그 글만 보인다", () => {
@@ -56,8 +57,14 @@ describe("글", () => {
 });
 
 describe("관리", () => {
+  const token = Cypress.env("ADMIN_TOKEN");
+
+  before(function skipWithoutToken() {
+    if (!token) this.skip();
+  });
+
   beforeEach(() => {
-    cy.visit("/", { onBeforeLoad: (win) => win.localStorage.setItem("jwt_token", "dev-token") });
+    cy.visit("/", { onBeforeLoad: (win) => win.localStorage.setItem("jwt_token", token) });
   });
 
   it("처음 들어오면 글 목록이 보이고, 삭제 전에 확인을 받는다", () => {

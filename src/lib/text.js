@@ -37,14 +37,15 @@ export function parseTopicInput(value) {
   return out;
 }
 
-// 본문에서 http(s) 가 아닌 이미지 주소를 찾는다. 서버는 본문 이미지를 주소로 내려받아
-// 다시 올리므로, 이런 주소가 있으면 글 저장 전체가 실패한다.
+// 본문에서 서버가 내려받을 수 없는 이미지 주소를 찾는다. 서버는 바깥 그림(http/https)을 내려받아
+// 저장소에 옮겨 두므로, 그 밖의 주소(data:, 상대 경로)가 있으면 저장이 막힌다.
+// 이미 이 서버에 있는 그림(/api/images/...)은 괜찮다.
 export function findUnfetchableImages(markdown) {
   const bad = [];
   const re = /!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g;
   let m;
   while ((m = re.exec(String(markdown ?? "")))) {
-    if (!/^https?:\/\//i.test(m[1])) bad.push(m[1]);
+    if (!/^https?:\/\//i.test(m[1]) && !m[1].startsWith("/api/images/")) bad.push(m[1]);
   }
   return bad;
 }

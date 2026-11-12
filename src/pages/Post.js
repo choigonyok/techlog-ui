@@ -47,7 +47,7 @@ export function Component() {
           </Link>
         </p>
         <article ref={articleRef} className="article" aria-labelledby="post-title">
-          <PostHeader post={post} titleId="post-title" coverSrc={thumbnailUrl(post.id)} />
+          <PostHeader post={post} titleId="post-title" coverSrc={thumbnailUrl(post)} />
           <TocBar headings={headings} activeId={activeId} />
           <Prose source={post.text} />
         </article>

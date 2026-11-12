@@ -3,47 +3,62 @@ import { invalidatePostCache } from "./postApi";
 
 // 관리 화면에서만 쓰는 요청. 첫 화면 묶음에 들어가지 않도록 따로 둔다.
 
-// 글 쓰기·고치기. 서버는 실패해도 200 을 보낼 때가 있어, 결과 확인은 부르는 쪽에서 다시 읽어 한다.
-function postForm(fields, file) {
-  const form = new FormData();
-  if (file) form.append("file", file);
-  form.append(
-    "data",
-    JSON.stringify({
-      title: fields.title,
-      subtitle: fields.subtitle,
-      tags: fields.tags,
-      text: fields.text,
-      thumbnail_name: file ? file.name : "",
-    })
-  );
-  return form;
+function authHeaders(extra = {}) {
+  const token = readToken();
+  return token ? { Authorization: `Bearer ${token}`, ...extra } : extra;
 }
 
+function jsonBody(fields) {
+  return JSON.stringify({ title: fields.title, subtitle: fields.subtitle, tags: fields.tags, text: fields.text });
+}
+
+// 썸네일은 파일을 본문 그대로 올린다(서버가 풀지 않고 저장소로 흘려 넣는다).
+async function putThumbnail(id, file) {
+  await request(`/api/posts/${encodeURIComponent(id)}/thumbnail`, {
+    method: "PUT",
+    body: file,
+    headers: authHeaders({ "Content-Type": file.type || "application/octet-stream" }),
+  });
+}
+
+function invalidate() {
+  invalidateListCache();
+  invalidatePostCache();
+}
+
+// 새 글을 만들고 id 를 돌려준다. 썸네일을 골랐으면 이어서 올린다.
 export async function createPost(fields, file) {
   try {
-    await request("/api/post", { method: "POST", body: postForm(fields, file) });
+    const { id } = await request("/api/posts", {
+      method: "POST",
+      body: jsonBody(fields),
+      headers: authHeaders({ "Content-Type": "application/json" }),
+    });
+    if (file) await putThumbnail(id, file);
+    return id;
   } finally {
-    invalidateListCache();
-    invalidatePostCache();
+    invalidate();
   }
 }
 
 export async function updatePost(id, fields, file) {
   try {
-    await request(`/api/posts/${encodeURIComponent(id)}`, { method: "PUT", body: postForm(fields, file) });
+    await request(`/api/posts/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: jsonBody(fields),
+      headers: authHeaders({ "Content-Type": "application/json" }),
+    });
+    if (file) await putThumbnail(id, file);
   } finally {
-    invalidateListCache();
-    invalidatePostCache();
+    invalidate();
   }
 }
 
 export async function deletePost(id) {
   try {
-    await request(`/api/posts/${encodeURIComponent(id)}`, { method: "DELETE" });
+    await request(`/api/posts/${encodeURIComponent(id)}`, { method: "DELETE", headers: authHeaders() });
   } finally {
-    invalidateListCache();
-    invalidatePostCache();
+    invalidate();
   }
 }
 
@@ -84,6 +99,8 @@ export async function validateToken(token) {
       body: JSON.stringify({ token }),
       credentials: "include",
     });
+    // 본문을 읽어 요청을 닫는다(읽지 않으면 브라우저에 열린 채 남는다).
+    await res.text().catch(() => "");
     return res.status;
   } catch {
     return 0;

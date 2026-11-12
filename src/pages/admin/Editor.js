@@ -1,7 +1,6 @@
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { Link, useBlocker, useLoaderData, useNavigate } from "react-router-dom";
 import { createPost, updatePost } from "../../adminApi";
-import { getPosts } from "../../api";
 import { getPost, thumbnailUrl } from "../../postApi";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PostHeader from "../../components/PostHeader";
@@ -28,15 +27,7 @@ function fieldsOf(post) {
   return { title: post.title, subtitle: post.subtitle, tags: post.tags.join(", "), text: post.text };
 }
 
-// 서버는 파일 이름을 SQL 문자열에 그대로 이어 붙인다. 따옴표 같은 글자가 저장을 깨뜨리지 않게
-// 올릴 때 이름을 바꾼다.
-function uploadFile(file) {
-  const fromName = /\.([a-z0-9]{1,5})$/i.exec(file.name);
-  const fromType = /^image\/([a-z0-9+.-]+)$/i.exec(file.type || "");
-  const ext = ((fromName && fromName[1]) || (fromType && fromType[1]) || "img").toLowerCase().replace(/[^a-z0-9]/g, "");
-  return new File([file], `thumbnail-${Date.now()}.${ext || "img"}`, { type: file.type });
-}
-
+// 저장했다는 응답 뒤에 다시 읽어 보니 바뀌지 않았을 때
 class NotConfirmed extends Error {}
 
 let imageSeq = 0;
@@ -89,7 +80,7 @@ export function Component() {
 
   const update = (name) => (event) => setFields((f) => ({ ...f, [name]: event.target.value }));
 
-  // 검사. 40자 초과·작은따옴표·이미지 주소는 쓰는 동안 바로, 빈 칸은 올리기를 누른 뒤에 알린다.
+  // 검사. 40자 초과·이미지 주소는 쓰는 동안 바로, 빈 칸은 올리기를 누른 뒤에 알린다. 서버도 같은 규칙으로 확인한다.
   const titleLength = charLength(fields.title);
   const subtitleLength = charLength(fields.subtitle);
   const topicNames = parseTopicInput(fields.tags);
@@ -102,7 +93,7 @@ export function Component() {
         ? "제목을 적어 주세요."
         : "",
     subtitle: subtitleLength > LIMIT ? `${LIMIT}자를 넘었습니다. ${LIMIT}자 안으로 줄여야 저장됩니다.` : "",
-    tags: topicNames.some((t) => t.includes("'")) ? "주제에는 작은따옴표(')를 쓸 수 없습니다." : "",
+    tags: topicNames.some((t) => charLength(t) > LIMIT) ? `주제 하나는 ${LIMIT}자까지입니다.` : "",
     text: badImages.length
       ? `이미지 주소는 http:// 나 https:// 로 시작해야 서버가 내려받습니다. 고칠 주소: ${badImages.slice(0, 2).join(", ")}`
       : tried && !fields.text.trim()
@@ -224,15 +215,14 @@ export function Component() {
       text: fields.text,
     };
     const chosen = images.find((img) => img.key === thumb);
-    const file = chosen ? uploadFile(chosen.file) : null;
+    const file = chosen ? chosen.file : null;
 
     setSaving(true);
     try {
       if (isNew) {
-        const before = new Set((await getPosts({ fresh: true }).catch(() => [])).map((p) => p.id));
-        await createPost(payload, file);
-        const after = await getPosts({ fresh: true });
-        if (!after.some((p) => !before.has(p.id) && p.title === payload.title)) throw new NotConfirmed();
+        const id = await createPost(payload, file);
+        const saved = await getPost(id, { fresh: true });
+        if (!saved || saved.title !== payload.title) throw new NotConfirmed();
         clearDraft();
         leaving.current = true;
         navigate("/admin", { state: { message: `‘${payload.title}’ 글을 올렸습니다.` } });
@@ -246,7 +236,9 @@ export function Component() {
     } catch (error) {
       setSubmitError(
         error instanceof NotConfirmed
-          ? "서버가 글을 저장하지 않았습니다. 본문 이미지 주소에 접속할 수 있는지, 서버 기록에 오류가 있는지 확인해 주세요."
+          ? "저장했다는 응답을 받았지만 다시 읽어 보니 글이 바뀌지 않았습니다. 잠시 뒤 목록에서 확인해 주세요."
+          : error && error.status === 401
+          ? "로그인한 지 오래되어 저장하지 못했습니다. 새 탭에서 관리 화면에 다시 로그인한 뒤, 이 화면에서 다시 저장하세요."
           : `저장하지 못했습니다. ${error.message}`
       );
     } finally {
@@ -268,7 +260,7 @@ export function Component() {
     date: post ? post.date || todayISO() : todayISO(),
     topics: topicsOf(topicNames),
   };
-  const coverSrc = chosen ? chosen.url : !isNew && thumb === "keep" ? thumbnailUrl(post.id) : null;
+  const coverSrc = chosen ? chosen.url : !isNew && thumb === "keep" ? thumbnailUrl(post) : null;
 
   return (
     <form className="editor admin-page" onSubmit={submit} noValidate>
@@ -369,7 +361,7 @@ export function Component() {
 
           <ThumbnailPicker
             isNew={isNew}
-            postId={post ? post.id : null}
+            current={post ? thumbnailUrl(post) : null}
             images={images}
             value={thumb}
             onPick={setThumb}

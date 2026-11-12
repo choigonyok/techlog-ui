@@ -21,6 +21,6 @@ test("주제 입력은 쉼표로 나누고 빈 칸·대소문자 중복을 뺀�
 });
 
 test("서버가 내려받을 수 없는 본문 이미지 주소를 찾는다", () => {
-  const md = "![a](https://x.io/a.png) ![b](data:image/png;base64,AA) ![c](/local.png) ![d](<http://y.io/d.png>)";
+  const md = "![a](https://x.io/a.png) ![b](data:image/png;base64,AA) ![c](/local.png) ![d](<http://y.io/d.png>) ![e](/api/images/imp-123)";
   expect(findUnfetchableImages(md)).toEqual(["data:image/png;base64,AA", "/local.png"]);
 });

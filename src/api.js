@@ -11,22 +11,24 @@ export class ApiError extends Error {
   }
 }
 
-export async function request(path, { method = "GET", body, signal } = {}) {
+export async function request(path, { method = "GET", body, signal, headers } = {}) {
   let res;
   try {
-    res = await fetch(HOST + path, { method, body, signal, credentials: "include" });
+    res = await fetch(HOST + path, { method, body, signal, headers, credentials: "include" });
   } catch (error) {
     if (error && error.name === "AbortError") throw error;
     throw new ApiError(0, "서버에 연결하지 못했습니다.");
   }
-  if (!res.ok) throw new ApiError(res.status, `서버가 ${res.status} 응답을 보냈습니다.`);
   const text = await res.text();
-  if (!text) return null;
+  let data = null;
   try {
-    return JSON.parse(text);
+    data = text ? JSON.parse(text) : null;
   } catch {
-    return null;
+    data = null;
   }
+  // 서버는 실패한 까닭을 {error} 로 돌려준다.
+  if (!res.ok) throw new ApiError(res.status, (data && data.error) || `서버가 ${res.status} 응답을 보냈습니다.`);
+  return data;
 }
 
 export function normalizePost(raw) {
@@ -38,6 +40,7 @@ export function normalizePost(raw) {
     tags: Array.isArray(raw && raw.tags) ? raw.tags.filter((t) => typeof t === "string") : [],
     topics: topicsOf(raw && raw.tags),
     text: (raw && raw.text) || "",
+    thumbnail: (raw && typeof raw.thumbnail === "string" && raw.thumbnail) || null,
   };
 }
 

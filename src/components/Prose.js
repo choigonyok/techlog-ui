@@ -43,8 +43,18 @@ function CodeBlock({ node, children, ...rest }) {
   );
 }
 
-function ProseImage({ node, alt, ...rest }) {
-  return <img {...rest} alt={alt || ""} loading="lazy" decoding="async" />;
+// 옛 글에는 원래 주소가 사라진 그림이 있다(들여올 때 /api/images/missing-… 으로 바뀐다).
+// 깨진 그림 아이콘 대신 그 자리에 무엇이 없는지 적는다.
+function ProseImage({ node, alt, src, ...rest }) {
+  const [failed, setFailed] = useState(false);
+  if (failed || /\/api\/images\/missing-/.test(src || "")) {
+    return (
+      <span className="img-missing" role="img" aria-label={alt ? `불러오지 못한 그림: ${alt}` : "불러오지 못한 그림"}>
+        그림을 불러오지 못했습니다
+      </span>
+    );
+  }
+  return <img {...rest} src={src} alt={alt || ""} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
 }
 
 function ProseTable({ node, ...rest }) {
